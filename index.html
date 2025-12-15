@@ -1,0 +1,992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Transformation Readiness Assessment - Inflection Advisory</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-bottom: 2px solid #0066cc;
+            margin-bottom: 40px;
+        }
+
+        .logo {
+            max-width: 280px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #1a1a1a;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #1a1a1a;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #0066cc;
+            box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+        }
+
+        .required {
+            color: #cc0000;
+        }
+
+        .helper-text {
+            color: #666;
+            font-size: 13px;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .btn {
+            background: #0066cc;
+            color: #ffffff;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #0052a3;
+        }
+
+        .btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #1a1a1a;
+            border: 1px solid #d0d0d0;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #0066cc;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .dimension-header {
+            color: #0066cc;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #0066cc;
+        }
+
+        .question {
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            color: #1a1a1a;
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border: 1px solid #d0d0d0;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-option:hover {
+            border-color: #0066cc;
+            background: #f8fafc;
+        }
+
+        .radio-option input[type="radio"] {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .radio-option label {
+            cursor: pointer;
+            font-size: 15px;
+            color: #333;
+            flex: 1;
+        }
+
+        .radio-option input[type="radio"]:checked + label {
+            color: #0066cc;
+            font-weight: 500;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .button-group button {
+            flex: 1;
+        }
+
+        .results-container {
+            text-align: center;
+        }
+
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0066cc 0%, #0052a3 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 30px auto;
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+        }
+
+        .score-number {
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .score-label {
+            font-size: 16px;
+            margin-top: 8px;
+            opacity: 0.95;
+        }
+
+        .readiness-badge {
+            display: inline-block;
+            padding: 10px 24px;
+            background: #e6f2ff;
+            color: #0066cc;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 18px;
+            margin: 20px 0;
+        }
+
+        .results-section {
+            text-align: left;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .results-section h3 {
+            color: #0066cc;
+            font-size: 20px;
+            margin-bottom: 16px;
+        }
+
+        .results-section h4 {
+            color: #1a1a1a;
+            font-size: 17px;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .results-section p {
+            color: #333;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        .results-section strong {
+            color: #1a1a1a;
+        }
+
+        .dimension-scores {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 30px 0;
+        }
+
+        .dimension-score {
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 6px;
+            border-left: 4px solid #0066cc;
+        }
+
+        .dimension-score-name {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 6px;
+        }
+
+        .dimension-score-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1a1a1a;
+        }
+
+        .cta-box {
+            background: #f0f7ff;
+            border: 2px solid #0066cc;
+            border-radius: 8px;
+            padding: 30px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            color: #1a1a1a;
+            margin-bottom: 12px;
+        }
+
+        .cta-box p {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .warning-box {
+            background: #fff4e6;
+            border-left: 4px solid #ff9800;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .warning-box strong {
+            color: #e65100;
+        }
+
+        ul {
+            text-align: left;
+            color: #333;
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        ul li {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .intro-text {
+            color: #333;
+            font-size: 15px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        .privacy-note {
+            font-size: 13px;
+            color: #999;
+            font-style: italic;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .card {
+                padding: 24px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .dimension-scores {
+                grid-template-columns: 1fr;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Assessment questions organized by dimension
+        const assessmentData = {
+            dimensions: [
+                {
+                    id: 'data',
+                    name: 'Data Infrastructure & Quality',
+                    description: 'Your ability to leverage transformation tools depends on having reliable, accessible data.',
+                    questions: [
+                        {
+                            id: 'data_1',
+                            text: 'When our leadership needs to make decisions (pricing changes, inventory planning, sales forecasting), we can quickly access the data we need without waiting for IT or digging through multiple systems.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - We have dashboards or reports ready within minutes' },
+                                { value: 3, label: 'Agree - Usually accessible within a few hours or same day' },
+                                { value: 2, label: 'Disagree - Takes days or requires manual data gathering' },
+                                { value: 1, label: 'Strongly Disagree - We often make decisions without complete data' }
+                            ]
+                        },
+                        {
+                            id: 'data_2',
+                            text: 'Our critical business data (sales, inventory, customer records, financial data) exists in integrated systems that talk to each other, rather than scattered across disconnected spreadsheets and tools.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Integrated ERP or connected systems with minimal manual transfer' },
+                                { value: 3, label: 'Agree - Mostly integrated with some manual bridging between systems' },
+                                { value: 2, label: 'Disagree - Lots of Excel bridging and manual data consolidation' },
+                                { value: 1, label: 'Strongly Disagree - Heavily dependent on disconnected spreadsheets' }
+                            ]
+                        },
+                        {
+                            id: 'data_3',
+                            text: 'Our team trusts the accuracy of our business data. When we pull a sales report or inventory status, we don\'t have to spend time validating or reconciling the numbers.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - High confidence, rare discrepancies' },
+                                { value: 3, label: 'Agree - Generally reliable with occasional validation needed' },
+                                { value: 2, label: 'Disagree - Frequent reconciliation required, conflicting sources' },
+                                { value: 1, label: 'Strongly Disagree - Low confidence, manual validation is standard practice' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'process',
+                    name: 'Process Maturity & Documentation',
+                    description: 'Transformation works best when you have clear, repeatable processes.',
+                    questions: [
+                        {
+                            id: 'process_1',
+                            text: 'Our core business processes (order fulfillment, customer onboarding, supplier management, month-end close) are documented clearly enough that a new team member could follow them without constant guidance.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Written procedures, checklists, or SOPs for key processes' },
+                                { value: 3, label: 'Agree - Some documentation exists but may be outdated' },
+                                { value: 2, label: 'Disagree - Mostly tribal knowledge, little written documentation' },
+                                { value: 1, label: 'Strongly Disagree - Undocumented, knowledge in people\'s heads' }
+                            ]
+                        },
+                        {
+                            id: 'process_2',
+                            text: 'When someone is on leave or leaves the company, their work can be picked up by others without major disruption because our processes are standardized and not dependent on individual know-how.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Smooth handoffs, minimal disruption' },
+                                { value: 3, label: 'Agree - Manageable but requires significant knowledge transfer' },
+                                { value: 2, label: 'Disagree - Significant disruption, steep learning curve' },
+                                { value: 1, label: 'Strongly Disagree - Major risk when key people are unavailable' }
+                            ]
+                        },
+                        {
+                            id: 'process_3',
+                            text: 'We regularly review and improve our business processes based on performance data and team feedback, rather than just accepting "this is how we\'ve always done it."',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Quarterly or regular process reviews with measurable improvements' },
+                                { value: 3, label: 'Agree - Occasional improvements when problems arise' },
+                                { value: 2, label: 'Disagree - Processes rarely change unless forced by external factors' },
+                                { value: 1, label: 'Strongly Disagree - Processes are static, change is difficult' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'team',
+                    name: 'Team Capabilities & Technology Fluency',
+                    description: 'Your team\'s readiness to adopt new tools and ways of working determines transformation success.',
+                    questions: [
+                        {
+                            id: 'team_1',
+                            text: 'When we introduce new digital tools or systems (CRM, collaboration platforms, reporting tools), our team adapts relatively quickly without extensive resistance or prolonged training needs.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Team embraces new tools, quick ramp-up' },
+                                { value: 3, label: 'Agree - Adapts with moderate training and support' },
+                                { value: 2, label: 'Disagree - Significant resistance and extended learning curves' },
+                                { value: 1, label: 'Strongly Disagree - High resistance, prefer manual/traditional methods' }
+                            ]
+                        },
+                        {
+                            id: 'team_2',
+                            text: 'We have internal capability to evaluate technology or transformation solutions. We don\'t depend entirely on vendor claims or external consultants to tell us if something will work for our business.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Can assess fit, ask technical questions, reference check' },
+                                { value: 3, label: 'Agree - Some internal capability but need external validation' },
+                                { value: 2, label: 'Disagree - Limited ability to evaluate, rely heavily on vendors' },
+                                { value: 1, label: 'Strongly Disagree - No internal capability, fully dependent on external advice' }
+                            ]
+                        },
+                        {
+                            id: 'team_3',
+                            text: 'Our team understands how data and technology can improve their day-to-day work. They can articulate pain points that technology might solve, not just say "we need to digitalize."',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Team identifies specific improvement opportunities' },
+                                { value: 3, label: 'Agree - General awareness but needs prompting for specifics' },
+                                { value: 2, label: 'Disagree - Limited understanding of technology applications' },
+                                { value: 1, label: 'Strongly Disagree - Technology seen as "IT\'s problem" not operational tool' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'strategic',
+                    name: 'Strategic Readiness & Business Case Clarity',
+                    description: 'Successful transformation starts with clear business objectives and ROI expectations.',
+                    questions: [
+                        {
+                            id: 'strategic_1',
+                            text: 'We have identified specific, measurable business problems that transformation initiatives (AI, automation, digital tools) should solve—not just a general sense that "we should modernize."',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Clear problem statements with quantified impact' },
+                                { value: 3, label: 'Agree - Problems identified but not fully quantified' },
+                                { value: 2, label: 'Disagree - Vague sense of need, unclear specific problems' },
+                                { value: 1, label: 'Strongly Disagree - No clear problem definition, just following trends' }
+                            ]
+                        },
+                        {
+                            id: 'strategic_2',
+                            text: 'We know how we would measure success and ROI for transformation initiatives. We have baseline metrics and defined targets for improvement.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Clear KPIs, baseline data, target improvements defined' },
+                                { value: 3, label: 'Agree - General metrics in mind but not fully baselined' },
+                                { value: 2, label: 'Disagree - Unclear how to measure, no baseline data' },
+                                { value: 1, label: 'Strongly Disagree - No measurement framework, success is subjective' }
+                            ]
+                        },
+                        {
+                            id: 'strategic_3',
+                            text: 'Leadership is aligned on transformation priorities and has committed (or is ready to commit) budget and resources to pursue the right opportunities.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Budget allocated or clear commitment to fund approved initiatives' },
+                                { value: 3, label: 'Agree - Conceptual support but budget not yet allocated' },
+                                { value: 2, label: 'Disagree - Interest but unclear if budget will be available' },
+                                { value: 1, label: 'Strongly Disagree - No budget commitment, purely exploratory' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'change',
+                    name: 'Organizational Change Readiness',
+                    description: 'Transformation requires organizational change capability.',
+                    questions: [
+                        {
+                            id: 'change_1',
+                            text: 'In the past 2-3 years, our organization has successfully implemented significant changes (new systems, process redesigns, organizational restructuring) and saw them through to adoption.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Multiple successful changes with sustained adoption' },
+                                { value: 3, label: 'Agree - Some successful changes with moderate follow-through' },
+                                { value: 2, label: 'Disagree - Change initiatives often stall or revert to old ways' },
+                                { value: 1, label: 'Strongly Disagree - History of failed or abandoned change initiatives' }
+                            ]
+                        },
+                        {
+                            id: 'change_2',
+                            text: 'People in our organization are generally open to changing how they work if they understand the reason and see the benefit. Resistance exists but can be overcome through communication and involvement.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Open culture, welcomes improvement if well-communicated' },
+                                { value: 3, label: 'Agree - Moderate openness, some pockets of resistance' },
+                                { value: 2, label: 'Disagree - Significant resistance, "we\'ve always done it this way" mindset' },
+                                { value: 1, label: 'Strongly Disagree - High resistance, change is extremely difficult' }
+                            ]
+                        },
+                        {
+                            id: 'change_3',
+                            text: 'We have identified executive sponsors for transformation initiatives, and we have (or can allocate) the necessary time and people to support implementation alongside daily operations.',
+                            options: [
+                                { value: 4, label: 'Strongly Agree - Clear sponsor, dedicated resources or capacity plan' },
+                                { value: 3, label: 'Agree - Sponsor identified, resources need to be worked out' },
+                                { value: 2, label: 'Disagree - Unclear sponsorship, team already stretched thin' },
+                                { value: 1, label: 'Strongly Disagree - No sponsor, no capacity for additional initiatives' }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        function AssessmentApp() {
+            const [step, setStep] = useState('intro');
+            const [contactInfo, setContactInfo] = useState({
+                name: '',
+                company: '',
+                email: '',
+                phone: ''
+            });
+            const [currentDimension, setCurrentDimension] = useState(0);
+            const [answers, setAnswers] = useState({});
+            const [results, setResults] = useState(null);
+
+            // Scroll to top whenever step or dimension changes
+            React.useEffect(() => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }, [step, currentDimension]);
+
+            const totalQuestions = assessmentData.dimensions.reduce((sum, dim) => sum + dim.questions.length, 0);
+            const answeredQuestions = Object.keys(answers).length;
+            const progress = (answeredQuestions / totalQuestions) * 100;
+
+            const handleContactSubmit = (e) => {
+                e.preventDefault();
+                if (contactInfo.name && contactInfo.company && contactInfo.email) {
+                    setStep('assessment');
+                }
+            };
+
+            const handleAnswer = (questionId, value) => {
+                setAnswers({ ...answers, [questionId]: value });
+            };
+
+            const handleNext = () => {
+                if (currentDimension < assessmentData.dimensions.length - 1) {
+                    setCurrentDimension(currentDimension + 1);
+                } else {
+                    calculateResults();
+                }
+            };
+
+            const handlePrevious = () => {
+                if (currentDimension > 0) {
+                    setCurrentDimension(currentDimension - 1);
+                }
+            };
+
+            const isCurrentDimensionComplete = () => {
+                const currentDim = assessmentData.dimensions[currentDimension];
+                return currentDim.questions.every(q => answers[q.id] !== undefined);
+            };
+
+            const calculateResults = () => {
+                let totalScore = 0;
+                let dimensionScores = {};
+
+                assessmentData.dimensions.forEach(dimension => {
+                    let dimScore = 0;
+                    dimension.questions.forEach(question => {
+                        dimScore += answers[question.id] || 0;
+                    });
+                    dimensionScores[dimension.id] = dimScore;
+                    totalScore += dimScore;
+                });
+
+                const maxScore = 60;
+                const percentage = Math.round((totalScore / maxScore) * 100);
+
+                let readinessLevel, interpretation, whatThisMeans, commonPatterns, theRisk, recommendedNextStep, whatYoullKnow;
+
+                if (percentage >= 75) {
+                    readinessLevel = 'High Readiness - Ready to Execute';
+                    interpretation = 'You have strong foundational capabilities across data, processes, team readiness, strategic clarity, and change capability. Your organization is well-positioned to pursue transformation initiatives with reasonable confidence in success.';
+                    whatThisMeans = [
+                        'You likely have successful technology adoption history',
+                        'Your data and processes provide a solid foundation',
+                        'Your team is capable of evaluating and implementing solutions',
+                        'You have clear business objectives and ROI expectations',
+                        'Your organization can manage change effectively'
+                    ];
+                    commonPatterns = 'Even high-readiness companies benefit from external perspective on prioritizing among multiple opportunities, avoiding common implementation pitfalls, building comprehensive business cases that secure leadership buy-in, and vendor evaluation and solution architecture.';
+                    theRisk = null;
+                    recommendedNextStep = 'Consider our AI Use Case Roadmap (Tier 2) to identify your highest-value opportunities, build detailed business cases, and create a 12-18 month implementation roadmap.';
+                    whatYoullKnow = [
+                        'Prioritized use case inventory with ROI analysis',
+                        'Detailed business cases for top 1-2 opportunities',
+                        'Vendor evaluation framework and shortlist',
+                        'Clear implementation roadmap with phasing and dependencies'
+                    ];
+                } else if (percentage >= 50) {
+                    readinessLevel = 'Moderate Readiness - Build Foundation First';
+                    interpretation = 'You have some foundational elements in place, but critical gaps need addressing before major transformation investments. Companies at this level risk failed implementations or poor ROI if they move too quickly without strengthening their foundation.';
+                    whatThisMeans = [
+                        'Some capabilities are strong, others need development',
+                        'You may have pockets of excellence but lack consistency',
+                        'Quick wins are possible in stronger areas',
+                        'Foundation-building needed in weaker dimensions before comprehensive transformation',
+                        'Risk of initiative failure if gaps aren\'t addressed'
+                    ];
+                    commonPatterns = 'Strong leadership support but weak data infrastructure, good processes but limited team technology fluency, clear problems identified but no ROI measurement framework, or previous change attempts with mixed results.';
+                    theRisk = 'Companies at this level often waste 6-12 months and $50-100K on transformation initiatives that fail because foundational gaps weren\'t addressed first.';
+                    recommendedNextStep = 'Our Business Transformation Readiness Assessment (Tier 1) is designed specifically for your situation. In 2-3 weeks, we\'ll identify your specific gaps with actionable recommendations, find 2-3 quick-wins you can pursue immediately, create a 6-12 month roadmap to build readiness systematically, and help you avoid expensive mistakes.';
+                    whatYoullKnow = [
+                        'Exactly which gaps to fix first',
+                        'Which quick-wins to pursue while building foundation',
+                        'Clear sequence for readiness-building over 6-12 months',
+                        'When you\'ll be ready for larger transformation initiatives'
+                    ];
+                } else {
+                    readinessLevel = 'Foundation Building - Strategic Assessment Needed';
+                    interpretation = 'Your organization has significant foundational gaps across multiple dimensions. Pursuing transformation initiatives now carries high risk of failure and wasted investment. You need a systematic approach to build readiness before making major commitments.';
+                    whatThisMeans = [
+                        'Multiple critical gaps exist across data, process, team, strategy, or change dimensions',
+                        'Transformation initiatives are likely to struggle without foundation work',
+                        'You may have experienced failed technology projects in the past',
+                        'Quick fixes won\'t work—you need a strategic, sequenced approach'
+                    ];
+                    commonPatterns = 'Your score creates clarity. Rather than pursuing transformation initiatives that will likely fail, you can build a solid foundation systematically. Companies that invest in readiness-building first see dramatically better results when they do transform.';
+                    theRisk = 'Companies at this readiness level who jump straight to technology implementation typically experience 60-80% project failure rates, wasted budget of $50-150K, team burnout and cynicism about "the next initiative," and 12-18 months of disruption with minimal results.';
+                    recommendedNextStep = 'Start with our Business Transformation Readiness Assessment (Tier 1). This isn\'t about selling you technology—it\'s about creating a realistic roadmap to build your foundation.';
+                    whatYoullKnow = [
+                        'Diagnose root causes: Why are gaps present? What created them?',
+                        'Prioritize foundation work: Which gaps to fix first, which can wait',
+                        'Identify immediate quick-wins: 2-3 low-hanging opportunities',
+                        'Create 12-month foundation roadmap: Sequenced plan to build capabilities',
+                        'Set realistic expectations: When you\'ll be ready for larger initiatives'
+                    ];
+                }
+
+                setResults({
+                    totalScore,
+                    percentage,
+                    readinessLevel,
+                    interpretation,
+                    whatThisMeans,
+                    commonPatterns,
+                    theRisk,
+                    recommendedNextStep,
+                    whatYoullKnow,
+                    dimensionScores
+                });
+                setStep('results');
+            };
+
+            if (step === 'intro') {
+                return (
+                    <div className="container">
+                        <div className="header">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 70'%3E%3Cpath d='M10 20 Q 18 45, 28 20 T 42 20' stroke='%23333333' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='28' cy='20' r='2.5' fill='%23333333'/%3E%3Ctext x='55' y='35' font-family='Arial, sans-serif' font-size='26' font-weight='700' fill='%23000000' letter-spacing='1'%3EINFLECTION%3C/text%3E%3Ctext x='55' y='55' font-family='Arial, sans-serif' font-size='18' font-weight='500' fill='%230066cc' letter-spacing='2'%3EADVISORY%3C/text%3E%3C/svg%3E" alt="Inflection Advisory" className="logo" />
+                            <h1>Business Transformation Readiness Assessment</h1>
+                            <p>Evaluate your organization's readiness across 5 critical dimensions in just 5-7 minutes</p>
+                        </div>
+
+                        <div className="card">
+                            <div className="intro-text">
+                                <p><strong>What You'll Learn:</strong></p>
+                                <ul>
+                                    <li>Your current transformation readiness level across Data Infrastructure, Process Maturity, Team Capabilities, Strategic Clarity, and Change Readiness</li>
+                                    <li>Strengths to leverage in your transformation journey</li>
+                                    <li>Critical gaps that need addressing</li>
+                                    <li>Recommended next steps tailored to your situation</li>
+                                </ul>
+                            </div>
+
+                            <form onSubmit={handleContactSubmit}>
+                                <div className="form-group">
+                                    <label>Name <span className="required">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={contactInfo.name}
+                                        onChange={(e) => setContactInfo({...contactInfo, name: e.target.value})}
+                                        required
+                                        placeholder="Your full name"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Company <span className="required">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={contactInfo.company}
+                                        onChange={(e) => setContactInfo({...contactInfo, company: e.target.value})}
+                                        required
+                                        placeholder="Your company name"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Email <span className="required">*</span></label>
+                                    <input
+                                        type="email"
+                                        value={contactInfo.email}
+                                        onChange={(e) => setContactInfo({...contactInfo, email: e.target.value})}
+                                        required
+                                        placeholder="your.email@company.com"
+                                    />
+                                </div>
+
+                                <div className="form-group">
+                                    <label>Phone</label>
+                                    <input
+                                        type="tel"
+                                        value={contactInfo.phone}
+                                        onChange={(e) => setContactInfo({...contactInfo, phone: e.target.value})}
+                                        placeholder="+65 1234 5678"
+                                    />
+                                    <div className="helper-text">Optional - provide if you'd like us to call you back for faster turnaround</div>
+                                </div>
+
+                                <p className="privacy-note">
+                                    We respect your privacy. Your information will be used solely to send your assessment results and may be used to follow up with relevant resources. No spam, unsubscribe anytime.
+                                </p>
+
+                                <button type="submit" className="btn">Start Assessment →</button>
+                            </form>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (step === 'assessment') {
+                const dimension = assessmentData.dimensions[currentDimension];
+                const isLastDimension = currentDimension === assessmentData.dimensions.length - 1;
+
+                return (
+                    <div className="container">
+                        <div className="header">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 70'%3E%3Cpath d='M10 20 Q 18 45, 28 20 T 42 20' stroke='%23333333' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='28' cy='20' r='2.5' fill='%23333333'/%3E%3Ctext x='55' y='35' font-family='Arial, sans-serif' font-size='26' font-weight='700' fill='%23000000' letter-spacing='1'%3EINFLECTION%3C/text%3E%3Ctext x='55' y='55' font-family='Arial, sans-serif' font-size='18' font-weight='500' fill='%230066cc' letter-spacing='2'%3EADVISORY%3C/text%3E%3C/svg%3E" alt="Inflection Advisory" className="logo" />
+                            <h1>Business Transformation Readiness Assessment</h1>
+                        </div>
+
+                        <div className="progress-container">
+                            <div className="progress-bar">
+                                <div className="progress-fill" style={{width: `${progress}%`}}></div>
+                            </div>
+                            <div className="progress-text">
+                                Question {answeredQuestions} of {totalQuestions} • {Math.round(progress)}% Complete
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="dimension-header">
+                                Dimension {currentDimension + 1} of 5: {dimension.name}
+                            </div>
+                            <p style={{color: '#666', marginBottom: '30px'}}>{dimension.description}</p>
+
+                            {dimension.questions.map((question, index) => (
+                                <div key={question.id} className="question">
+                                    <div className="question-text">
+                                        {index + 1}. {question.text}
+                                    </div>
+                                    <div className="radio-group">
+                                        {question.options.map(option => (
+                                            <div key={option.value} className="radio-option">
+                                                <input
+                                                    type="radio"
+                                                    id={`${question.id}_${option.value}`}
+                                                    name={question.id}
+                                                    value={option.value}
+                                                    checked={answers[question.id] === option.value}
+                                                    onChange={() => handleAnswer(question.id, option.value)}
+                                                />
+                                                <label htmlFor={`${question.id}_${option.value}`}>
+                                                    {option.label}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+
+                            <div className="button-group">
+                                {currentDimension > 0 && (
+                                    <button onClick={handlePrevious} className="btn btn-secondary">
+                                        ← Previous
+                                    </button>
+                                )}
+                                <button 
+                                    onClick={handleNext} 
+                                    className="btn"
+                                    disabled={!isCurrentDimensionComplete()}
+                                >
+                                    {isLastDimension ? 'See My Results →' : 'Next Dimension →'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (step === 'results' && results) {
+                return (
+                    <div className="container">
+                        <div className="header">
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 70'%3E%3Cpath d='M10 20 Q 18 45, 28 20 T 42 20' stroke='%23333333' stroke-width='2.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='28' cy='20' r='2.5' fill='%23333333'/%3E%3Ctext x='55' y='35' font-family='Arial, sans-serif' font-size='26' font-weight='700' fill='%23000000' letter-spacing='1'%3EINFLECTION%3C/text%3E%3Ctext x='55' y='55' font-family='Arial, sans-serif' font-size='18' font-weight='500' fill='%230066cc' letter-spacing='2'%3EADVISORY%3C/text%3E%3C/svg%3E" alt="Inflection Advisory" className="logo" />
+                            <h1>Your Assessment Results</h1>
+                            <p>Congratulations on completing the assessment, {contactInfo.name}!</p>
+                        </div>
+
+                        <div className="card">
+                            <div className="results-container">
+                                <div className="score-circle">
+                                    <div className="score-number">{results.percentage}%</div>
+                                    <div className="score-label">Readiness Score</div>
+                                </div>
+
+                                <div className="readiness-badge">{results.readinessLevel}</div>
+
+                                <div className="results-section">
+                                    <h3>Interpretation</h3>
+                                    <p>{results.interpretation}</p>
+                                </div>
+
+                                <div className="results-section">
+                                    <h3>What This Means</h3>
+                                    <ul>
+                                        {results.whatThisMeans.map((item, index) => (
+                                            <li key={index}>{item}</li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <div className="results-section">
+                                    <h3>Your Dimensional Scores</h3>
+                                    <div className="dimension-scores">
+                                        {assessmentData.dimensions.map(dim => (
+                                            <div key={dim.id} className="dimension-score">
+                                                <div className="dimension-score-name">{dim.name}</div>
+                                                <div className="dimension-score-value">
+                                                    {results.dimensionScores[dim.id]}/12
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="results-section">
+                                    <h3>Common Patterns at This Level</h3>
+                                    <p>{results.commonPatterns}</p>
+                                </div>
+
+                                {results.theRisk && (
+                                    <div className="warning-box">
+                                        <strong>The Risk:</strong> {results.theRisk}
+                                    </div>
+                                )}
+
+                                <div className="results-section">
+                                    <h3>Recommended Next Step</h3>
+                                    <p>{results.recommendedNextStep}</p>
+                                </div>
+
+                                {results.whatYoullKnow && (
+                                    <div className="results-section">
+                                        <h4>What You'll Know After Our Assessment:</h4>
+                                        <ul>
+                                            {results.whatYoullKnow.map((item, index) => (
+                                                <li key={index}>{item}</li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+
+                                <div className="cta-box">
+                                    <h3>Ready to Take the Next Step?</h3>
+                                    <p>Our team will follow up with you within 7 working days to discuss your results and explore next steps.</p>
+                                    <p><strong>Want to discuss your results sooner?</strong> Schedule a complimentary 45-minute consultation to discuss your specific situation and explore whether we're the right fit.</p>
+                                    <p style={{fontSize: '16px', margin: '20px 0'}}>
+                                        Email us at: <strong style={{color: '#0066cc'}}>contact@inflection-advisory.com</strong>
+                                    </p>
+                                    <p style={{fontSize: '13px', color: '#666', marginTop: '12px'}}>
+                                        We'll respond within 2-3 business days with available times that work for both of us
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            return null;
+        }
+
+        ReactDOM.render(<AssessmentApp />, document.getElementById('root'));
+    </script>
+</body>
+</html>
