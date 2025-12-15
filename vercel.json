@@ -2,9 +2,6 @@
   "version": 2,
   "name": "business-readiness-assessment",
   "public": true,
-  "analytics": {
-    "enable": true
-  },
   "headers": [
     {
       "source": "/(.*)",
