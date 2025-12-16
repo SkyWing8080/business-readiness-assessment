@@ -1,18 +1,27 @@
 {
   "name": "business-readiness-assessment",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint"
   },
   "dependencies": {
     "next": "14.2.5",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "@vercel/postgres": "^0.10.0",
-    "resend": "^3.2.0",
-    "@react-email/components": "^0.0.25"
+    "resend": "^4.0.0",
+    "@react-email/components": "^0.0.25",
+    "@react-email/render": "^1.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^8",
+    "eslint-config-next": "14.2.5"
+  },
+  "engines": {
+    "node": ">=18.17.0"
   }
 }

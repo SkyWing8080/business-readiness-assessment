@@ -1,5 +1,4 @@
--- Database schema for Business Readiness Assessment leads
--- Run this in Vercel Postgres SQL editor
+-- Business Transformation Readiness Assessment - Leads Database Schema
 
 CREATE TABLE IF NOT EXISTS leads (
   id SERIAL PRIMARY KEY,
@@ -24,8 +23,6 @@ CREATE TABLE IF NOT EXISTS leads (
   
   -- Email Sequence Tracking
   email_sequence_step INTEGER DEFAULT 0,
-  -- 0 = not started, 1 = Email #1 sent, 2 = Email #2 sent, 3 = Email #3 sent (complete)
-  
   last_email_sent_at TIMESTAMP,
   
   -- Status
@@ -34,12 +31,14 @@ CREATE TABLE IF NOT EXISTS leads (
   updated_at TIMESTAMP DEFAULT NOW()
 );
 
--- Index for efficient email sequence queries
+-- Indexes for performance
 CREATE INDEX IF NOT EXISTS idx_email_sequence 
-ON leads(email_sequence_step, last_email_sent_at, unsubscribed);
+  ON leads(email_sequence_step, last_email_sent_at, unsubscribed);
 
--- Index for email lookups
 CREATE INDEX IF NOT EXISTS idx_email ON leads(email);
 
--- Index for created date queries
 CREATE INDEX IF NOT EXISTS idx_created_at ON leads(created_at);
+
+-- Comments
+COMMENT ON TABLE leads IS 'Stores assessment leads and email nurture sequence tracking';
+COMMENT ON COLUMN leads.email_sequence_step IS '0=not started, 1=welcome sent, 2=email2 sent, 3=complete';
