@@ -1,0 +1,150 @@
+# COPY THESE FILES TO YOUR REPOSITORY
+
+## Quick Instructions (5 Minutes)
+
+### Step 1: Locate Your Repository
+1. Open GitHub Desktop
+2. Click **Repository** menu → **Show in Explorer/Finder**
+3. This opens your repository folder
+
+### Step 2: Copy These Folders/Files
+Copy everything from THIS folder to your repository:
+
+```
+✅ COPY: app/              (entire folder)
+✅ COPY: lib/              (entire folder)
+✅ COPY: package.json      (file)
+✅ COPY: next.config.js    (file)
+```
+
+**How to copy:**
+- Select all 4 items above
+- Copy (Ctrl+C or Cmd+C)
+- Go to your repository folder
+- Paste (Ctrl+V or Cmd+V)
+
+### Step 3: Move Your Existing Files
+1. In your repository, create a new folder called `public`
+2. Move your current assessment file (probably `index.html`) to `public/`
+3. Rename it to `assessment.html`
+4. Move any CSS/JS/images to `public/` as well
+
+**After this, your repository should have:**
+```
+your-repository/
+├── app/           ← NEW (from this folder)
+├── lib/           ← NEW (from this folder)
+├── public/        ← NEW (you create this)
+│   └── assessment.html  ← YOUR existing HTML (moved and renamed)
+├── package.json   ← NEW (from this folder)
+└── next.config.js ← NEW (from this folder)
+```
+
+### Step 4: Update Your Form JavaScript
+
+Open `public/assessment.html` and find your form submission code.
+
+**Replace the submit handler with this:**
+
+```javascript
+form.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const submitButton = form.querySelector('button[type="submit"]');
+  const originalText = submitButton.textContent;
+  submitButton.textContent = 'Submitting...';
+  submitButton.disabled = true;
+  
+  const formData = {
+    fullName: document.getElementById('fullName').value,
+    email: document.getElementById('email').value,
+    company: document.getElementById('company').value,
+    jobTitle: document.getElementById('jobTitle').value,
+    phone: document.getElementById('phone')?.value || '',
+    industry: document.getElementById('industry').value,
+    companySize: document.getElementById('companySize').value,
+    currentChallenges: document.getElementById('currentChallenges')?.value || '',
+    businessGoals: document.getElementById('businessGoals')?.value || '',
+    timeframe: document.getElementById('timeframe')?.value || '',
+    budget: document.getElementById('budget')?.value || '',
+    decisionMakingRole: document.getElementById('decisionMakingRole')?.value || '',
+    additionalInfo: document.getElementById('additionalInfo')?.value || '',
+    consentMarketing: document.getElementById('consentMarketing')?.checked || false
+  };
+  
+  try {
+    const response = await fetch('/api/submit-assessment', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok && result.success) {
+      alert('Thank you! Check your email for assessment results.');
+      form.reset();
+    } else {
+      alert(result.error || 'Submission failed. Please try again.');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Network error. Please try again.');
+  } finally {
+    submitButton.textContent = originalText;
+    submitButton.disabled = false;
+  }
+});
+```
+
+**Important:** Update the `document.getElementById()` parts to match YOUR form's field IDs.
+
+### Step 5: Commit in GitHub Desktop
+
+1. Open GitHub Desktop
+2. You'll see all the new files listed
+3. In the bottom-left corner, write:
+   - **Summary:** `Add backend API for Postgres and Resend`
+   - **Description:** `Integrate database and email automation`
+4. Click **Commit to main**
+
+### Step 6: Push to GitHub
+
+1. Click **Push origin** (top-right button)
+2. Wait for push to complete (5-30 seconds)
+
+### Step 7: Vercel Auto-Deploys
+
+1. Go to https://vercel.com/dashboard
+2. Click your project
+3. Watch deployment (takes 2-3 minutes)
+4. Wait for "Deployment completed"
+
+### Step 8: Test
+
+1. Visit: `https://your-app.vercel.app/assessment.html`
+2. Fill out form with your email
+3. Submit
+4. Check email arrives
+5. Check database has the lead
+
+---
+
+## That's It!
+
+Your form now:
+- ✅ Saves data to Postgres
+- ✅ Sends welcome email via Resend
+- ✅ Calculates assessment scores
+- ✅ Prevents duplicate submissions
+
+Your frontend stays exactly the same - only the backend is added!
+
+---
+
+## Need Help?
+
+See the detailed guides in the `assessment-backend-minimal` folder:
+- GITHUB_DESKTOP_GUIDE.md
+- FORM_JAVASCRIPT_GUIDE.md
+- INTEGRATION_GUIDE.md

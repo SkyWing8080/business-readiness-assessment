@@ -1,0 +1,278 @@
+# DEPLOYMENT CHECKLIST
+
+Use this checklist to track your progress.
+
+---
+
+## PHASE 1: PREPARATION (5 minutes)
+
+- [ ] Downloaded COPY_THESE_FILES folder
+- [ ] Read COPY_INSTRUCTIONS.txt
+- [ ] GitHub Desktop is open
+- [ ] Can see your repository in GitHub Desktop
+
+---
+
+## PHASE 2: BACKUP (2 minutes)
+
+- [ ] Clicked "Current Branch" in GitHub Desktop
+- [ ] Clicked "New Branch"
+- [ ] Named it: `backup-original-frontend`
+- [ ] Clicked "Create Branch"
+- [ ] Clicked "Publish branch"
+- [ ] Switched back to `main` branch
+
+**✅ Your code is now safely backed up!**
+
+---
+
+## PHASE 3: COPY BACKEND FILES (3 minutes)
+
+- [ ] Opened GitHub Desktop
+- [ ] Clicked Repository → Show in Explorer/Finder
+- [ ] Repository folder is now open
+- [ ] Selected these 4 items from COPY_THESE_FILES:
+  - [ ] app/ folder
+  - [ ] lib/ folder
+  - [ ] package.json file
+  - [ ] next.config.js file
+- [ ] Copied them (Ctrl+C or Cmd+C)
+- [ ] Pasted into repository root (Ctrl+V or Cmd+V)
+
+**✅ Backend files are now in your repository!**
+
+---
+
+## PHASE 4: MOVE FRONTEND FILES (5 minutes)
+
+- [ ] Created `public/` folder in your repository
+- [ ] Found your current HTML file (probably index.html)
+- [ ] Renamed it to `assessment.html`
+- [ ] Moved it to `public/assessment.html`
+- [ ] Moved CSS files to `public/`
+- [ ] Moved JavaScript files to `public/` (if separate)
+- [ ] Moved images to `public/`
+- [ ] Moved any other frontend assets to `public/`
+
+**✅ Your frontend is now in the public/ folder!**
+
+---
+
+## PHASE 5: UPDATE JAVASCRIPT (10 minutes)
+
+- [ ] Opened `public/assessment.html` in text editor
+- [ ] Found the `<script>` section
+- [ ] Found form submission handler
+- [ ] Copied new code from JAVASCRIPT_UPDATE.txt
+- [ ] Updated field IDs to match my form:
+  - [ ] fullName → `document.getElementById('___').value`
+  - [ ] email → `document.getElementById('___').value`
+  - [ ] company → `document.getElementById('___').value`
+  - [ ] jobTitle → `document.getElementById('___').value`
+  - [ ] industry → `document.getElementById('___').value`
+  - [ ] companySize → `document.getElementById('___').value`
+- [ ] Saved the file
+
+**✅ Form now POSTs to API endpoint!**
+
+---
+
+## PHASE 6: REVIEW IN GITHUB DESKTOP (2 minutes)
+
+- [ ] Opened GitHub Desktop
+- [ ] Can see list of changed files on left
+- [ ] Green + = new files (app/, lib/, etc.)
+- [ ] Yellow dot = modified files (assessment.html)
+- [ ] Red - = deleted files (old index.html)
+- [ ] Clicked on files to review changes
+- [ ] Changes look correct
+
+**✅ Ready to commit!**
+
+---
+
+## PHASE 7: COMMIT CHANGES (2 minutes)
+
+- [ ] In GitHub Desktop, bottom-left corner
+- [ ] Summary field: `Add backend API for Postgres and Resend`
+- [ ] Description field: `Integrate database and email automation`
+- [ ] Clicked "Commit to main" button
+- [ ] Commit successful (files disappear from left panel)
+
+**✅ Changes committed locally!**
+
+---
+
+## PHASE 8: PUSH TO GITHUB (1 minute)
+
+- [ ] Clicked "Push origin" button (top-right)
+- [ ] Progress bar appeared
+- [ ] Push completed successfully
+- [ ] "Push origin" button disappeared
+
+**✅ Code is now on GitHub!**
+
+---
+
+## PHASE 9: MONITOR VERCEL DEPLOYMENT (3 minutes)
+
+- [ ] Opened browser
+- [ ] Went to https://vercel.com/dashboard
+- [ ] Clicked my project: `business-readiness-assessment`
+- [ ] Can see new deployment starting
+- [ ] Status: "Building..."
+- [ ] Waited for "Deployment completed" (2-3 minutes)
+- [ ] Deployment successful (green checkmark)
+
+**✅ App is now deployed!**
+
+---
+
+## PHASE 10: TEST FORM ACCESS (1 minute)
+
+- [ ] Visited: `https://my-app.vercel.app/assessment.html`
+- [ ] Form loaded successfully
+- [ ] Form looks exactly like before
+- [ ] All styling intact
+- [ ] All fields present
+
+**✅ Frontend working!**
+
+---
+
+## PHASE 11: TEST API ENDPOINT (1 minute)
+
+- [ ] Opened browser DevTools (F12)
+- [ ] Clicked Console tab
+- [ ] Pasted: `fetch('/api/submit-assessment').then(r=>r.json()).then(console.log)`
+- [ ] Pressed Enter
+- [ ] Saw: `{status: "ok", message: "Assessment API is running", ...}`
+
+**✅ API is working!**
+
+---
+
+## PHASE 12: TEST FORM SUBMISSION (3 minutes)
+
+- [ ] Filled out form with MY email address
+- [ ] Filled all required fields:
+  - [ ] Full name
+  - [ ] Email
+  - [ ] Company
+  - [ ] Job title
+  - [ ] Industry
+  - [ ] Company size
+- [ ] Clicked "Submit Assessment" button
+- [ ] Button changed to "Submitting..."
+- [ ] Alert appeared: "Thank you! Check your email..."
+- [ ] Form reset to empty
+
+**✅ Form submission working!**
+
+---
+
+## PHASE 13: VERIFY EMAIL (2 minutes)
+
+- [ ] Checked my email inbox
+- [ ] Checked spam folder (just in case)
+- [ ] Found email from: Inflection Advisory
+- [ ] Subject: "Your Business Readiness Assessment Results..."
+- [ ] Email opened successfully
+- [ ] Email content looks professional
+- [ ] Email includes my assessment score
+
+**✅ Email automation working!**
+
+---
+
+## PHASE 14: VERIFY DATABASE (2 minutes)
+
+- [ ] Went to Vercel dashboard
+- [ ] Clicked Storage → Postgres
+- [ ] Clicked SQL Editor
+- [ ] Ran query: `SELECT * FROM leads ORDER BY created_at DESC LIMIT 1;`
+- [ ] Saw my submission in results
+- [ ] All fields populated correctly
+- [ ] Assessment score calculated
+- [ ] Timestamp is recent
+
+**✅ Database integration working!**
+
+---
+
+## PHASE 15: TEST DUPLICATE PREVENTION (1 minute)
+
+- [ ] Filled out form again with SAME email
+- [ ] Clicked Submit
+- [ ] Saw error: "This email has already been submitted..."
+- [ ] Form did not submit
+- [ ] No second email received
+
+**✅ Duplicate prevention working!**
+
+---
+
+## FINAL VERIFICATION
+
+### All Systems Go ✅
+
+- [ ] Form loads and looks correct
+- [ ] Form submits successfully  
+- [ ] Email arrives within 2 minutes
+- [ ] Lead saved in database
+- [ ] Assessment score calculated
+- [ ] Duplicate submissions blocked
+- [ ] Frontend looks identical to before
+- [ ] Users see no difference
+- [ ] Embedded version still works (if applicable)
+
+---
+
+## SUCCESS! 🎉
+
+Your assessment form now:
+- ✅ Captures leads in Postgres database
+- ✅ Sends automated welcome emails via Resend
+- ✅ Calculates assessment scores
+- ✅ Prevents duplicate submissions
+- ✅ Looks exactly the same to users
+
+---
+
+## WHAT'S NEXT?
+
+### Immediate (Today)
+- [ ] Test with 2-3 more submissions
+- [ ] Verify emails consistently arrive
+- [ ] Check all leads appear in database
+- [ ] Share assessment URL with team
+
+### This Week
+- [ ] Submit real lead for testing
+- [ ] Monitor email deliverability in Resend
+- [ ] Export leads from database
+- [ ] Set up Email 2 & 3 (see documentation)
+
+### Ongoing
+- [ ] Check database regularly for new leads
+- [ ] Follow up with leads promptly
+- [ ] Monitor assessment scores
+- [ ] Optimize based on conversion data
+
+---
+
+## TROUBLESHOOTING
+
+If any step failed, see:
+- COPY_INSTRUCTIONS.txt
+- VISUAL_GUIDE.txt  
+- JAVASCRIPT_UPDATE.txt
+- Or the detailed guides in assessment-backend-minimal/
+
+---
+
+**Congratulations! You've successfully integrated backend functionality while keeping your frontend intact!**
+
+Date completed: _________________
+
+Time taken: _________________ (should be ~30 minutes)
