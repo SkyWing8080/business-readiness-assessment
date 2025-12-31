@@ -358,6 +358,49 @@
             color: #e65100;
         }
 
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f0f0f0;
+            border-top: 4px solid #0066cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            color: #666;
+            font-size: 16px;
+        }
+
+        .error-message {
+            background: #ffebee;
+            border-left: 4px solid #f44336;
+            padding: 16px 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+            color: #c62828;
+        }
+
         ul {
             text-align: left;
             color: #333;
@@ -615,6 +658,8 @@
             const [currentDimension, setCurrentDimension] = useState(0);
             const [answers, setAnswers] = useState({});
             const [results, setResults] = useState(null);
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const [submitError, setSubmitError] = useState(null);
 
             // Scroll to top whenever step or dimension changes
             React.useEffect(() => {
@@ -655,96 +700,183 @@
                 return currentDim.questions.every(q => answers[q.id] !== undefined);
             };
 
-            const calculateResults = () => {
-                let totalScore = 0;
-                let dimensionScores = {};
-
-                assessmentData.dimensions.forEach(dimension => {
-                    let dimScore = 0;
-                    dimension.questions.forEach(question => {
-                        dimScore += answers[question.id] || 0;
+            const submitToBackend = async (resultsData) => {
+                try {
+                    // Transform answers object into individual question fields
+                    const transformedAnswers = {};
+                    Object.keys(answers).forEach(questionId => {
+                        transformedAnswers[questionId] = answers[questionId];
                     });
-                    dimensionScores[dimension.id] = dimScore;
-                    totalScore += dimScore;
-                });
 
-                const maxScore = 60;
-                const percentage = Math.round((totalScore / maxScore) * 100);
+                    const payload = {
+                        fullName: contactInfo.name,
+                        email: contactInfo.email,
+                        company: contactInfo.company,
+                        phone: contactInfo.phone || '',
+                        
+                        // Scores
+                        totalScore: resultsData.totalScore,
+                        readinessPercentage: resultsData.percentage,
+                        readinessLevel: resultsData.readinessLevel,
+                        
+                        // Dimensional scores
+                        dataScore: resultsData.dimensionScores.data,
+                        processScore: resultsData.dimensionScores.process,
+                        teamScore: resultsData.dimensionScores.team,
+                        strategicScore: resultsData.dimensionScores.strategic,
+                        changeScore: resultsData.dimensionScores.change,
+                        
+                        // All answers
+                        ...transformedAnswers
+                    };
 
-                let readinessLevel, interpretation, whatThisMeans, commonPatterns, theRisk, recommendedNextStep, whatYoullKnow;
+                    console.log('Submitting to API:', payload);
 
-                if (percentage >= 75) {
-                    readinessLevel = 'High Readiness - Ready to Execute';
-                    interpretation = 'You have strong foundational capabilities across data, processes, team readiness, strategic clarity, and change capability. Your organization is well-positioned to pursue transformation initiatives with reasonable confidence in success.';
-                    whatThisMeans = [
-                        'You likely have successful technology adoption history',
-                        'Your data and processes provide a solid foundation',
-                        'Your team is capable of evaluating and implementing solutions',
-                        'You have clear business objectives and ROI expectations',
-                        'Your organization can manage change effectively'
-                    ];
-                    commonPatterns = 'Even high-readiness companies benefit from external perspective on prioritizing among multiple opportunities, avoiding common implementation pitfalls, building comprehensive business cases that secure leadership buy-in, and vendor evaluation and solution architecture.';
-                    theRisk = null;
-                    recommendedNextStep = 'Consider our AI Use Case Roadmap (Tier 2) to identify your highest-value opportunities, build detailed business cases, and create a 12-18 month implementation roadmap.';
-                    whatYoullKnow = [
-                        'Prioritized use case inventory with ROI analysis',
-                        'Detailed business cases for top 1-2 opportunities',
-                        'Vendor evaluation framework and shortlist',
-                        'Clear implementation roadmap with phasing and dependencies'
-                    ];
-                } else if (percentage >= 50) {
-                    readinessLevel = 'Moderate Readiness - Build Foundation First';
-                    interpretation = 'You have some foundational elements in place, but critical gaps need addressing before major transformation investments. Companies at this level risk failed implementations or poor ROI if they move too quickly without strengthening their foundation.';
-                    whatThisMeans = [
-                        'Some capabilities are strong, others need development',
-                        'You may have pockets of excellence but lack consistency',
-                        'Quick wins are possible in stronger areas',
-                        'Foundation-building needed in weaker dimensions before comprehensive transformation',
-                        'Risk of initiative failure if gaps aren\'t addressed'
-                    ];
-                    commonPatterns = 'Strong leadership support but weak data infrastructure, good processes but limited team technology fluency, clear problems identified but no ROI measurement framework, or previous change attempts with mixed results.';
-                    theRisk = 'Companies at this level often waste 6-12 months and $50-100K on transformation initiatives that fail because foundational gaps weren\'t addressed first.';
-                    recommendedNextStep = 'Our Business Transformation Readiness Assessment (Tier 1) is designed specifically for your situation. In 2-3 weeks, we\'ll identify your specific gaps with actionable recommendations, find 2-3 quick-wins you can pursue immediately, create a 6-12 month roadmap to build readiness systematically, and help you avoid expensive mistakes.';
-                    whatYoullKnow = [
-                        'Exactly which gaps to fix first',
-                        'Which quick-wins to pursue while building foundation',
-                        'Clear sequence for readiness-building over 6-12 months',
-                        'When you\'ll be ready for larger transformation initiatives'
-                    ];
-                } else {
-                    readinessLevel = 'Foundation Building - Strategic Assessment Needed';
-                    interpretation = 'Your organization has significant foundational gaps across multiple dimensions. Pursuing transformation initiatives now carries high risk of failure and wasted investment. You need a systematic approach to build readiness before making major commitments.';
-                    whatThisMeans = [
-                        'Multiple critical gaps exist across data, process, team, strategy, or change dimensions',
-                        'Transformation initiatives are likely to struggle without foundation work',
-                        'You may have experienced failed technology projects in the past',
-                        'Quick fixes won\'t work—you need a strategic, sequenced approach'
-                    ];
-                    commonPatterns = 'Your score creates clarity. Rather than pursuing transformation initiatives that will likely fail, you can build a solid foundation systematically. Companies that invest in readiness-building first see dramatically better results when they do transform.';
-                    theRisk = 'Companies at this readiness level who jump straight to technology implementation typically experience 60-80% project failure rates, wasted budget of $50-150K, team burnout and cynicism about "the next initiative," and 12-18 months of disruption with minimal results.';
-                    recommendedNextStep = 'Start with our Business Transformation Readiness Assessment (Tier 1). This isn\'t about selling you technology—it\'s about creating a realistic roadmap to build your foundation.';
-                    whatYoullKnow = [
-                        'Diagnose root causes: Why are gaps present? What created them?',
-                        'Prioritize foundation work: Which gaps to fix first, which can wait',
-                        'Identify immediate quick-wins: 2-3 low-hanging opportunities',
-                        'Create 12-month foundation roadmap: Sequenced plan to build capabilities',
-                        'Set realistic expectations: When you\'ll be ready for larger initiatives'
-                    ];
+                    const response = await fetch('/api/submit-assessment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(result.error || 'Failed to submit assessment');
+                    }
+
+                    console.log('Submission successful:', result);
+                    return result;
+
+                } catch (error) {
+                    console.error('Backend submission error:', error);
+                    throw error;
                 }
+            };
 
-                setResults({
-                    totalScore,
-                    percentage,
-                    readinessLevel,
-                    interpretation,
-                    whatThisMeans,
-                    commonPatterns,
-                    theRisk,
-                    recommendedNextStep,
-                    whatYoullKnow,
-                    dimensionScores
-                });
-                setStep('results');
+            const calculateResults = async () => {
+                setIsSubmitting(true);
+                setSubmitError(null);
+
+                try {
+                    let totalScore = 0;
+                    let dimensionScores = {};
+
+                    assessmentData.dimensions.forEach(dimension => {
+                        let dimScore = 0;
+                        dimension.questions.forEach(question => {
+                            dimScore += answers[question.id] || 0;
+                        });
+                        dimensionScores[dimension.id] = dimScore;
+                        totalScore += dimScore;
+                    });
+
+                    const maxScore = 60;
+                    const percentage = Math.round((totalScore / maxScore) * 100);
+
+                    let readinessLevel, interpretation, whatThisMeans, commonPatterns, theRisk, recommendedNextStep, whatYoullKnow;
+
+                    if (percentage >= 75) {
+                        readinessLevel = 'High Readiness - Ready to Execute';
+                        interpretation = 'You have strong foundational capabilities across data, processes, team readiness, strategic clarity, and change capability. Your organization is well-positioned to pursue transformation initiatives with reasonable confidence in success.';
+                        whatThisMeans = [
+                            'You likely have successful technology adoption history',
+                            'Your data and processes provide a solid foundation',
+                            'Your team is capable of evaluating and implementing solutions',
+                            'You have clear business objectives and ROI expectations',
+                            'Your organization can manage change effectively'
+                        ];
+                        commonPatterns = 'Even high-readiness companies benefit from external perspective on prioritizing among multiple opportunities, avoiding common implementation pitfalls, building comprehensive business cases that secure leadership buy-in, and vendor evaluation and solution architecture.';
+                        theRisk = null;
+                        recommendedNextStep = 'Consider our AI Use Case Roadmap (Tier 2) to identify your highest-value opportunities, build detailed business cases, and create a 12-18 month implementation roadmap.';
+                        whatYoullKnow = [
+                            'Prioritized use case inventory with ROI analysis',
+                            'Detailed business cases for top 1-2 opportunities',
+                            'Vendor evaluation framework and shortlist',
+                            'Clear implementation roadmap with phasing and dependencies'
+                        ];
+                    } else if (percentage >= 50) {
+                        readinessLevel = 'Moderate Readiness - Build Foundation First';
+                        interpretation = 'You have some foundational elements in place, but critical gaps need addressing before major transformation investments. Companies at this level risk failed implementations or poor ROI if they move too quickly without strengthening their foundation.';
+                        whatThisMeans = [
+                            'Some capabilities are strong, others need development',
+                            'You may have pockets of excellence but lack consistency',
+                            'Quick wins are possible in stronger areas',
+                            'Foundation-building needed in weaker dimensions before comprehensive transformation',
+                            'Risk of initiative failure if gaps aren\'t addressed'
+                        ];
+                        commonPatterns = 'Strong leadership support but weak data infrastructure, good processes but limited team technology fluency, clear problems identified but no ROI measurement framework, or previous change attempts with mixed results.';
+                        theRisk = 'Companies at this level often waste 6-12 months and $50-100K on transformation initiatives that fail because foundational gaps weren\'t addressed first.';
+                        recommendedNextStep = 'Our Business Transformation Readiness Assessment (Tier 1) is designed specifically for your situation. In 2-3 weeks, we\'ll identify your specific gaps with actionable recommendations, find 2-3 quick-wins you can pursue immediately, create a 6-12 month roadmap to build readiness systematically, and help you avoid expensive mistakes.';
+                        whatYoullKnow = [
+                            'Exactly which gaps to fix first',
+                            'Which quick-wins to pursue while building foundation',
+                            'Clear sequence for readiness-building over 6-12 months',
+                            'When you\'ll be ready for larger transformation initiatives'
+                        ];
+                    } else {
+                        readinessLevel = 'Foundation Building - Strategic Assessment Needed';
+                        interpretation = 'Your organization has significant foundational gaps across multiple dimensions. Pursuing transformation initiatives now carries high risk of failure and wasted investment. You need a systematic approach to build readiness before making major commitments.';
+                        whatThisMeans = [
+                            'Multiple critical gaps exist across data, process, team, strategy, or change dimensions',
+                            'Transformation initiatives are likely to struggle without foundation work',
+                            'You may have experienced failed technology projects in the past',
+                            'Quick fixes won\'t work—you need a strategic, sequenced approach'
+                        ];
+                        commonPatterns = 'Your score creates clarity. Rather than pursuing transformation initiatives that will likely fail, you can build a solid foundation systematically. Companies that invest in readiness-building first see dramatically better results when they do transform.';
+                        theRisk = 'Companies at this readiness level who jump straight to technology implementation typically experience 60-80% project failure rates, wasted budget of $50-150K, team burnout and cynicism about "the next initiative," and 12-18 months of disruption with minimal results.';
+                        recommendedNextStep = 'Start with our Business Transformation Readiness Assessment (Tier 1). This isn\'t about selling you technology—it\'s about creating a realistic roadmap to build your foundation.';
+                        whatYoullKnow = [
+                            'Diagnose root causes: Why are gaps present? What created them?',
+                            'Prioritize foundation work: Which gaps to fix first, which can wait',
+                            'Identify immediate quick-wins: 2-3 low-hanging opportunities',
+                            'Create 12-month foundation roadmap: Sequenced plan to build capabilities',
+                            'Set realistic expectations: When you\'ll be ready for larger initiatives'
+                        ];
+                    }
+
+                    const resultsData = {
+                        totalScore,
+                        percentage,
+                        readinessLevel,
+                        interpretation,
+                        whatThisMeans,
+                        commonPatterns,
+                        theRisk,
+                        recommendedNextStep,
+                        whatYoullKnow,
+                        dimensionScores
+                    };
+
+                    // Submit to backend
+                    await submitToBackend(resultsData);
+
+                    setResults(resultsData);
+                    setStep('results');
+
+                } catch (error) {
+                    console.error('Error during results calculation/submission:', error);
+                    setSubmitError('We encountered an error submitting your assessment. Your results are shown below, but we may not have received your submission. Please email us at contact@inflection-advisory.com with your results.');
+                    
+                    // Still show results even if backend fails
+                    const fallbackResults = {
+                        totalScore: 0,
+                        percentage: 0,
+                        readinessLevel: 'Assessment Error',
+                        interpretation: 'There was an error processing your results.',
+                        whatThisMeans: [],
+                        commonPatterns: '',
+                        theRisk: null,
+                        recommendedNextStep: '',
+                        whatYoullKnow: [],
+                        dimensionScores: {}
+                    };
+                    setResults(fallbackResults);
+                    setStep('results');
+                } finally {
+                    setIsSubmitting(false);
+                }
             };
 
             if (step === 'intro') {
@@ -903,6 +1035,12 @@
                         </div>
 
                         <div className="card">
+                            {submitError && (
+                                <div className="error-message">
+                                    <strong>Notice:</strong> {submitError}
+                                </div>
+                            )}
+
                             <div className="results-container">
                                 <div className="score-circle">
                                     <div className="score-number">{results.percentage}%</div>
@@ -955,7 +1093,7 @@
                                     <p>{results.recommendedNextStep}</p>
                                 </div>
 
-                                {results.whatYoullKnow && (
+                                {results.whatYoullKnow && results.whatYoullKnow.length > 0 && (
                                     <div className="results-section">
                                         <h4>What You'll Know After Our Assessment:</h4>
                                         <ul>
@@ -968,7 +1106,7 @@
 
                                 <div className="cta-box">
                                     <h3>Ready to Take the Next Step?</h3>
-                                    <p>Our team will follow up with you within 7 working days to discuss your results and explore next steps.</p>
+                                    <p>Your detailed results have been sent to <strong>{contactInfo.email}</strong>. Our team will follow up with you within 7 working days to discuss your results and explore next steps.</p>
                                     <p><strong>Want to discuss your results sooner?</strong> Schedule a complimentary 45-minute consultation to discuss your specific situation and explore whether we're the right fit.</p>
                                     <p style={{fontSize: '16px', margin: '20px 0'}}>
                                         Email us at: <strong style={{color: '#0066cc'}}>contact@inflection-advisory.com</strong>
@@ -979,6 +1117,15 @@
                                 </div>
                             </div>
                         </div>
+                    </div>
+                );
+            }
+
+            if (isSubmitting) {
+                return (
+                    <div className="loading-overlay">
+                        <div className="spinner"></div>
+                        <div className="loading-text">Calculating your results and sending to your email...</div>
                     </div>
                 );
             }
