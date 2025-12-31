@@ -1,175 +1,208 @@
 import { NextResponse } from 'next/server';
+import { sql } from '@vercel/postgres';
 import { Resend } from 'resend';
-import { saveAssessmentLead, getLeadByEmail } from '@/lib/db';
-import { getWelcomeEmail } from '@/lib/email-templates';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-/**
- * POST /api/submit-assessment
- * Handles assessment form submission
- */
+export async function GET() {
+  return NextResponse.json({ 
+    status: 'ok', 
+    message: 'Assessment API is running',
+    timestamp: new Date().toISOString()
+  });
+}
+
 export async function POST(request) {
   try {
-    // Parse request body
     const body = await request.json();
     
-    // Validate required fields
-    const requiredFields = ['fullName', 'email', 'company', 'jobTitle', 'industry', 'companySize'];
+    // Validate required fields (jobTitle, industry, companySize are now optional)
+    const requiredFields = ['fullName', 'email', 'company'];
     const missingFields = requiredFields.filter(field => !body[field]);
     
     if (missingFields.length > 0) {
       return NextResponse.json(
-        { 
-          success: false, 
-          error: `Missing required fields: ${missingFields.join(', ')}` 
-        },
+        { error: `Missing required fields: ${missingFields.join(', ')}` },
         { status: 400 }
       );
     }
 
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(body.email)) {
-      return NextResponse.json(
-        { success: false, error: 'Invalid email format' },
-        { status: 400 }
-      );
-    }
+    // Extract data with defaults for optional fields
+    const {
+      fullName,
+      email,
+      company,
+      phone = '',
+      jobTitle = '',
+      industry = '',
+      companySize = '',
+      totalScore,
+      readinessPercentage,
+      readinessLevel,
+      dataScore,
+      processScore,
+      teamScore,
+      strategicScore,
+      changeScore,
+      // All 15 question answers
+      data_1, data_2, data_3,
+      process_1, process_2, process_3,
+      team_1, team_2, team_3,
+      strategic_1, strategic_2, strategic_3,
+      change_1, change_2, change_3
+    } = body;
 
-    // Check if lead already exists
-    const existingLead = await getLeadByEmail(body.email);
-    if (existingLead) {
-      return NextResponse.json(
-        { 
-          success: false, 
-          error: 'This email has already been submitted. Please check your inbox for your assessment results.',
-          duplicate: true
-        },
-        { status: 409 }
-      );
-    }
+    // Insert into database
+    const result = await sql`
+      INSERT INTO leads (
+        full_name,
+        email,
+        company,
+        phone,
+        job_title,
+        industry,
+        company_size,
+        total_score,
+        readiness_percentage,
+        readiness_level,
+        data_score,
+        process_score,
+        team_score,
+        strategic_score,
+        change_score,
+        data_1, data_2, data_3,
+        process_1, process_2, process_3,
+        team_1, team_2, team_3,
+        strategic_1, strategic_2, strategic_3,
+        change_1, change_2, change_3,
+        created_at
+      ) VALUES (
+        ${fullName},
+        ${email},
+        ${company},
+        ${phone},
+        ${jobTitle},
+        ${industry},
+        ${companySize},
+        ${totalScore},
+        ${readinessPercentage},
+        ${readinessLevel},
+        ${dataScore},
+        ${processScore},
+        ${teamScore},
+        ${strategicScore},
+        ${changeScore},
+        ${data_1}, ${data_2}, ${data_3},
+        ${process_1}, ${process_2}, ${process_3},
+        ${team_1}, ${team_2}, ${team_3},
+        ${strategic_1}, ${strategic_2}, ${strategic_3},
+        ${change_1}, ${change_2}, ${change_3},
+        NOW()
+      )
+      RETURNING id
+    `;
 
-    // Calculate assessment score (example scoring logic)
-    const assessmentScore = calculateAssessmentScore(body);
+    const leadId = result.rows[0].id;
 
-    // Prepare lead data
-    const leadData = {
-      fullName: body.fullName,
-      email: body.email,
-      company: body.company,
-      jobTitle: body.jobTitle,
-      phone: body.phone || null,
-      industry: body.industry,
-      companySize: body.companySize,
-      currentChallenges: body.currentChallenges || '',
-      businessGoals: body.businessGoals || '',
-      timeframe: body.timeframe || '',
-      budget: body.budget || '',
-      decisionMakingRole: body.decisionMakingRole || '',
-      additionalInfo: body.additionalInfo || null,
-      consentMarketing: body.consentMarketing || false,
-      assessmentScore: assessmentScore
-    };
-
-    // Save to database
-    const savedLead = await saveAssessmentLead(leadData);
-
-    // Send welcome email via Resend
+    // Send email via Resend
     try {
-      const emailConfig = getWelcomeEmail({
-        fullName: body.fullName,
-        email: body.email,
-        company: body.company,
-        assessmentScore: assessmentScore
+      await resend.emails.send({
+        from: 'Inflection Advisory <assessments@inflection-advisory.com>',
+        to: email,
+        subject: `Your Business Transformation Readiness Assessment Results - ${readinessPercentage}%`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: #0066cc; color: white; padding: 20px; text-align: center; }
+              .score-circle { background: #0066cc; color: white; width: 150px; height: 150px; 
+                              border-radius: 50%; display: flex; align-items: center; 
+                              justify-content: center; margin: 30px auto; font-size: 48px; 
+                              font-weight: bold; }
+              .badge { background: #e6f2ff; color: #0066cc; padding: 10px 20px; 
+                       border-radius: 20px; display: inline-block; margin: 20px 0; }
+              .section { margin: 30px 0; }
+              .section h2 { color: #0066cc; }
+              .cta-button { background: #0066cc; color: white; padding: 15px 30px; 
+                           text-decoration: none; border-radius: 5px; display: inline-block; 
+                           margin: 20px 0; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>Your Assessment Results</h1>
+              </div>
+              
+              <p>Hi ${fullName},</p>
+              
+              <p>Thank you for completing the Business Transformation Readiness Assessment. Here are your results:</p>
+              
+              <div class="score-circle">${readinessPercentage}%</div>
+              
+              <div style="text-align: center;">
+                <span class="badge">${readinessLevel}</span>
+              </div>
+              
+              <div class="section">
+                <h2>Your Dimensional Scores</h2>
+                <ul>
+                  <li><strong>Data Infrastructure:</strong> ${dataScore}/12</li>
+                  <li><strong>Process Maturity:</strong> ${processScore}/12</li>
+                  <li><strong>Team Capabilities:</strong> ${teamScore}/12</li>
+                  <li><strong>Strategic Readiness:</strong> ${strategicScore}/12</li>
+                  <li><strong>Change Readiness:</strong> ${changeScore}/12</li>
+                </ul>
+              </div>
+              
+              <div class="section">
+                <h2>Next Steps</h2>
+                <p>Our team will review your results and follow up with you within 7 working days to discuss:</p>
+                <ul>
+                  <li>Detailed interpretation of your assessment</li>
+                  <li>Specific recommendations for your organization</li>
+                  <li>Potential engagement options</li>
+                </ul>
+              </div>
+              
+              <div style="text-align: center;">
+                <a href="mailto:contact@inflection-advisory.com" class="cta-button">
+                  Schedule a Consultation
+                </a>
+              </div>
+              
+              <div class="section" style="font-size: 12px; color: #666;">
+                <p>Best regards,<br>
+                The Inflection Advisory Team</p>
+                <p>Email: contact@inflection-advisory.com<br>
+                Website: inflection-advisory.com</p>
+              </div>
+            </div>
+          </body>
+          </html>
+        `
       });
 
-      const { data: emailData, error: emailError } = await resend.emails.send(emailConfig);
-
-      if (emailError) {
-        console.error('Resend email error:', emailError);
-        // Don't fail the request if email fails - lead is already saved
-      } else {
-        console.log('Welcome email sent successfully:', emailData);
-      }
+      console.log('Email sent successfully to:', email);
     } catch (emailError) {
-      console.error('Failed to send welcome email:', emailError);
-      // Continue - lead is saved even if email fails
+      console.error('Email sending failed:', emailError);
+      // Don't fail the whole request if email fails
     }
 
-    // Return success response
     return NextResponse.json({
       success: true,
-      message: 'Assessment submitted successfully',
-      data: {
-        id: savedLead.id,
-        email: savedLead.email,
-        assessmentScore: assessmentScore,
-        createdAt: savedLead.created_at
-      }
+      leadId,
+      message: 'Assessment submitted successfully'
     });
 
   } catch (error) {
-    console.error('Assessment submission error:', error);
-    
+    console.error('API Error:', error);
     return NextResponse.json(
-      { 
-        success: false, 
-        error: 'Failed to process assessment submission. Please try again.' 
-      },
+      { error: error instanceof Error ? error.message : 'Unknown error occurred' },
       { status: 500 }
     );
   }
-}
-
-/**
- * Calculate assessment score based on responses
- * This is a simplified example - adjust based on your actual assessment questions
- */
-function calculateAssessmentScore(data) {
-  let score = 50; // Base score
-
-  // Company size factor
-  const sizeScores = {
-    '1-10': 10,
-    '11-50': 15,
-    '51-200': 20,
-    '201-500': 15,
-    '500+': 10
-  };
-  score += sizeScores[data.companySize] || 10;
-
-  // Timeframe factor (urgency)
-  const timeframeScores = {
-    'immediate': 20,
-    '1-3 months': 15,
-    '3-6 months': 10,
-    '6-12 months': 5,
-    'exploring': 0
-  };
-  score += timeframeScores[data.timeframe] || 0;
-
-  // Decision-making role factor
-  const roleScores = {
-    'final decision maker': 20,
-    'strong influence': 15,
-    'recommend': 10,
-    'research only': 5
-  };
-  score += roleScores[data.decisionMakingRole] || 0;
-
-  // Ensure score is between 0 and 100
-  return Math.min(Math.max(score, 0), 100);
-}
-
-/**
- * GET /api/submit-assessment
- * Health check endpoint
- */
-export async function GET() {
-  return NextResponse.json({ 
-    status: 'ok',
-    message: 'Assessment API is running',
-    timestamp: new Date().toISOString()
-  });
 }
