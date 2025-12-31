@@ -1,0 +1,158 @@
+# FIX AND DEPLOY - FINAL WORKING VERSION
+
+## THE PROBLEM
+Your deployment keeps failing because:
+1. The file is named `jsconfig.json.txt` (WRONG - has .txt extension)
+2. It needs to be named `jsconfig.json` (NO extension)
+3. The `lib/` folder may not be pushed to GitHub
+
+**Result:** Backend API never deploys, so form submissions go nowhere.
+
+---
+
+## THE SOLUTION (10 MINUTES)
+
+### Step 1: Delete Bad Files (2 min)
+
+In your repository, DELETE these files if they exist:
+- `jsconfig.json.txt` ← DELETE THIS!
+- `jsconfig.json.txt.txt` ← DELETE THIS if it exists!
+
+### Step 2: Copy These 5 Items (3 min)
+
+From the `WORKING_BACKEND` folder I just created, copy these to your repository:
+
+```
+✅ app/           (entire folder)
+✅ lib/           (entire folder)  
+✅ package.json   (file)
+✅ next.config.js (file)
+✅ jsconfig.json  (file) ← THIS ONE IS CORRECT (no .txt)!
+```
+
+**IMPORTANT:** When you copy `jsconfig.json`, make sure it stays as `jsconfig.json` (no .txt)!
+
+### Step 3: Verify Files (2 min)
+
+Open your repository folder and verify you have:
+
+```
+your-repository/
+├── app/
+│   ├── api/
+│   │   └── submit-assessment/
+│   │       └── route.js
+│   ├── layout.js
+│   └── page.js
+├── lib/
+│   ├── db.js
+│   └── email-templates.js
+├── public/
+│   └── assessment.html
+├── jsconfig.json          ← Should NOT have .txt extension!
+├── next.config.js
+└── package.json
+```
+
+**HOW TO CHECK jsconfig.json:**
+- In File Explorer, click View → File name extensions
+- Look at `jsconfig.json` - it should show JUST "jsconfig.json"
+- If it shows "jsconfig.json.txt" → RENAME IT to remove the .txt
+
+### Step 4: Commit in GitHub Desktop (1 min)
+
+1. Open GitHub Desktop
+2. You'll see changes (deleted old file, added new one)
+3. Summary: `Fix jsconfig.json and add lib folder`
+4. Description: `Remove .txt extension from jsconfig.json`
+5. Click **Commit to main**
+
+### Step 5: Push (1 min)
+
+1. Click **Push origin**
+2. Wait for push to complete
+
+### Step 6: Watch Deployment (2-3 min)
+
+1. Go to https://vercel.com/dashboard
+2. Click your project
+3. Watch the new deployment
+4. **This time it SHOULD succeed!**
+
+Look for these in the logs:
+- ✅ "Compiled successfully"
+- ✅ "Deployment completed"
+
+If you still see "Module not found: Can't resolve '@/lib/db'" → The lib/ folder didn't get pushed!
+
+---
+
+## AFTER SUCCESSFUL DEPLOYMENT
+
+### Test 1: Check API Endpoint
+
+Open browser console (F12), paste:
+```javascript
+fetch('https://business-readiness-assessment.vercel.app/api/submit-assessment')
+  .then(r => r.json())
+  .then(console.log)
+```
+
+**Should see:** `{status: "ok", message: "Assessment API is running", ...}`
+
+If you see 404 → Deployment failed, check logs.
+
+### Test 2: Submit Real Assessment
+
+1. Go to: https://business-readiness-assessment.vercel.app/assessment.html
+2. Fill out form with YOUR email
+3. Submit
+4. Wait 1-2 minutes
+5. Check email inbox (and spam)
+
+### Test 3: Check Database
+
+1. Go to Vercel → Storage → Postgres
+2. SQL Editor
+3. Run: `SELECT * FROM leads ORDER BY created_at DESC LIMIT 1;`
+4. You should see your submission!
+
+---
+
+## IF IT STILL DOESN'T WORK
+
+Send me a screenshot of:
+1. Your repository folder showing all files (with file extensions visible)
+2. The Vercel deployment error logs
+3. GitHub Desktop showing what files are being committed
+
+---
+
+## FILE EXTENSION FIX (Windows)
+
+**To show/hide file extensions in Windows:**
+1. Open File Explorer
+2. Click **View** tab at top
+3. Check the box: **File name extensions**
+4. Now you can see if files have .txt extensions
+
+**To rename a file and remove .txt:**
+1. Right-click the file
+2. Click "Rename"
+3. Change `jsconfig.json.txt` to `jsconfig.json`
+4. Press Enter
+5. Windows might warn "changing extension" → Click Yes
+
+---
+
+## WHAT jsconfig.json DOES
+
+It tells Next.js that `@/lib/db` means `./lib/db`.
+
+Without this file, Next.js can't find the lib/ folder.
+
+The file MUST be named exactly: `jsconfig.json` (NO .txt extension!)
+
+---
+
+**Copy the files from WORKING_BACKEND, ensure jsconfig.json has NO .txt extension, commit, push, and it should work!**
