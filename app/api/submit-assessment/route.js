@@ -131,7 +131,7 @@ export async function POST(request) {
     try {
       console.log('Attempting to send email to:', email);
       const emailResult = await resend.emails.send({
-        from: 'Inflection Advisory <onboarding@resend.dev>',
+       from: 'Inflection Advisory <contact@inflection-advisory.com>',
         to: email,
         subject: `Your Business Transformation Readiness Score: ${totalScore}%`,
         html: generateWelcomeEmail(fullName, totalScore, company, email)
