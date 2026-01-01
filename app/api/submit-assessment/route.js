@@ -5,13 +5,30 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Health check endpoint
 export async function GET() {
+  // Test database connection
+  let dbStatus = 'unknown';
+  let dbError = null;
+  
+  try {
+    const result = await sql`SELECT current_database(), current_user`;
+    dbStatus = `connected to ${result.rows[0]?.current_database}`;
+  } catch (err) {
+    dbStatus = 'error';
+    dbError = err.message;
+  }
+  
   return Response.json({
     status: 'ok',
     message: 'Assessment API is running',
     timestamp: new Date().toISOString(),
     env: {
       hasPostgres: !!process.env.POSTGRES_URL,
-      hasResend: !!process.env.RESEND_API_KEY
+      hasResend: !!process.env.RESEND_API_KEY,
+      postgresHost: process.env.POSTGRES_HOST ? process.env.POSTGRES_HOST.substring(0, 30) + '...' : 'not set'
+    },
+    database: {
+      status: dbStatus,
+      error: dbError
     }
   });
 }
@@ -69,9 +86,13 @@ export async function POST(request) {
     // Save to database
     let leadId = null;
     let dbSuccess = false;
+    let dbErrorMsg = null;
     
     try {
       console.log('Attempting database save...');
+      console.log('POSTGRES_URL exists:', !!process.env.POSTGRES_URL);
+      console.log('POSTGRES_HOST:', process.env.POSTGRES_HOST);
+      
       const result = await sql`
         INSERT INTO leads (
           email, 
@@ -118,19 +139,22 @@ export async function POST(request) {
       dbSuccess = true;
       console.log('Database save successful, lead ID:', leadId);
     } catch (dbError) {
+      dbErrorMsg = dbError.message;
       console.error('Database error:', dbError.message);
-      console.error('Full database error:', dbError);
+      console.error('Database error code:', dbError.code);
+      console.error('Full database error:', JSON.stringify(dbError, Object.getOwnPropertyNames(dbError)));
       // Continue without database - still try to send email
     }
 
     // Send welcome email
+    // TEMPORARY: Using Resend test domain until inflection-advisory.com is verified
     let emailSent = false;
     let emailError = null;
     
     try {
       console.log('Attempting to send email to:', email);
       const emailResult = await resend.emails.send({
-        from: 'Inflection Advisory <contact@inflection-advisory.com>',
+        from: 'Inflection Advisory <onboarding@resend.dev>',
         to: email,
         subject: `Your Business Transformation Readiness Score: ${totalScore}%`,
         html: generateWelcomeEmail(fullName, totalScore, company, email)
@@ -177,6 +201,7 @@ export async function POST(request) {
     // Add warnings if something failed
     if (!dbSuccess) {
       response.warning = 'Database save failed but results were calculated';
+      response.dbError = dbErrorMsg;
     }
     if (!emailSent) {
       response.emailWarning = emailError || 'Email send failed';
@@ -305,7 +330,7 @@ function generateWelcomeEmail(name, score, company, email) {
     <!-- About Box -->
     <div style="background: #f8fafc; border-radius: 8px; padding: 20px; margin: 30px 0; border-left: 4px solid #3b82f6;">
       <p style="margin: 0; font-size: 14px; color: #64748b;">
-        <strong style="color: #1e3a5f;">About Inflection Advisory:</strong> We're business operators who've led transformations at companies like Campari, GSK, Philips, and Coca-Cola. We don't just advise—we've done the work ourselves.
+        <strong style="color: #1e3a5f;">About Inflection Advisory:</strong> We're business operators who've led transformations at companies like Campari, GSK, Philips, and Coca-Cola. We don't just advise - we've done the work ourselves.
       </p>
     </div>
 
