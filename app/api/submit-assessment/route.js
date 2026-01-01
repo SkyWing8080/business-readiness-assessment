@@ -124,15 +124,13 @@ export async function POST(request) {
     }
 
     // Send welcome email
-    // TEMPORARY: Using onboarding@resend.dev until inflection-advisory.com is verified in Resend
     let emailSent = false;
     let emailError = null;
     
     try {
       console.log('Attempting to send email to:', email);
       const emailResult = await resend.emails.send({
-       from: 'Inflection Advisory <contact@inflection-advisory.com>',
-Then commit and push.
+        from: 'Inflection Advisory <contact@inflection-advisory.com>',
         to: email,
         subject: `Your Business Transformation Readiness Score: ${totalScore}%`,
         html: generateWelcomeEmail(fullName, totalScore, company, email)
