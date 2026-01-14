@@ -43,7 +43,7 @@ async function saveToGoogleSheets(data) {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: 'Assessment Leads!A:L',
+      range: "'Assessment Leads'!A:L",
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [row]
@@ -150,7 +150,7 @@ export async function POST(request) {
         from: 'Inflection Advisory <hello@inflection-advisory.com>',
         to: email,
         subject: `Your Business Transformation Readiness Score: ${readinessPercentage}%`,
-        html: generateWelcomeEmail(fullName, totalScore, readinessPercentage, readinessLevel, dataScore, processScore, teamScore, strategicScore, changeScore)
+        html: generateWelcomeEmail(fullName, totalScore, readinessPercentage, readinessLevel, dataScore, processScore, teamScore, strategicScore, changeScore, email)
       });
       
       if (emailResult.error) {
@@ -191,7 +191,7 @@ export async function POST(request) {
 }
 
 // Generate welcome email HTML
-function generateWelcomeEmail(name, score, percentage, level, dataScore, processScore, teamScore, strategicScore, changeScore) {
+function generateWelcomeEmail(name, score, percentage, level, dataScore, processScore, teamScore, strategicScore, changeScore, email) {
   const firstName = name.split(' ')[0];
   
   return `
