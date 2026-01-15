@@ -43,7 +43,7 @@ async function saveToGoogleSheets(data) {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId,
-      range: "'Assessment Leads'!A:L",
+      range: 'Sheet1!A:L',
       valueInputOption: 'USER_ENTERED',
       requestBody: {
         values: [row]
