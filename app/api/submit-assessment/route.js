@@ -117,22 +117,27 @@ export async function POST(request) {
   try {
     const data = await request.json();
     
+    // Frontend sends camelCase - destructure accordingly
     const {
-      full_name,
+      fullName,
       email,
       company,
       phone,
-      total_score,
-      readiness_level,
-      data_score,
-      process_score,
-      team_score,
-      strategic_score,
-      change_score,
+      totalScore,
+      readinessPercentage,
+      readinessLevel,
+      dataScore,
+      processScore,
+      teamScore,
+      strategicScore,
+      changeScore,
     } = data;
 
+    // Use readinessPercentage if available, otherwise use totalScore
+    const score = readinessPercentage || totalScore || 0;
+
     // Extract first name
-    const firstName = full_name?.split(' ')[0] || 'there';
+    const firstName = fullName?.split(' ')[0] || 'there';
 
     // Save to Google Sheets
     try {
@@ -144,16 +149,16 @@ export async function POST(request) {
           values: [[
             new Date().toISOString(),  // A: timestamp
             email,                      // B: email
-            full_name,                  // C: full_name
+            fullName,                   // C: full_name
             company,                    // D: company
-            phone,                      // E: phone
-            total_score,                // F: total_score
-            readiness_level,            // G: readiness_level
-            data_score,                 // H: data_score
-            process_score,              // I: process_score
-            team_score,                 // J: team_score
-            strategic_score,            // K: strategic_score
-            change_score,               // L: change_score
+            phone || '',                // E: phone
+            score,                      // F: total_score (percentage)
+            readinessLevel,             // G: readiness_level
+            dataScore || 0,             // H: data_score
+            processScore || 0,          // I: process_score
+            teamScore || 0,             // J: team_score
+            strategicScore || 0,        // K: strategic_score
+            changeScore || 0,           // L: change_score
             1,                          // M: email_step (1 = Email #1 sent)
             new Date().toISOString(),   // N: last_email_sent
           ]],
@@ -169,14 +174,14 @@ export async function POST(request) {
     try {
       const emailContent = getEmail1Content(
         firstName,
-        company,
-        total_score,
-        readiness_level,
-        data_score,
-        process_score,
-        team_score,
-        strategic_score,
-        change_score,
+        company || 'your company',
+        score,
+        readinessLevel || 'Assessment Complete',
+        dataScore || 0,
+        processScore || 0,
+        teamScore || 0,
+        strategicScore || 0,
+        changeScore || 0,
         email
       );
 
@@ -196,8 +201,8 @@ export async function POST(request) {
     return Response.json({
       success: true,
       message: 'Assessment submitted successfully',
-      score: total_score,
-      readinessLevel: readiness_level,
+      score: score,
+      readinessLevel: readinessLevel,
     });
 
   } catch (error) {
